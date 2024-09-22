@@ -55,7 +55,7 @@ class StudyLabelGenerator:
         content = response.choices[0].message.content
         return(content)
 
-    def get_valid_response(self, messages, max_tries=5, initial_temperature=0):
+    def get_valid_response(self, title, messages, max_tries=5, initial_temperature=0):
        """
        Try to get a valid response from OpenAI up to max_tries times,
        increasing the temperature after the first attempt.
@@ -77,10 +77,13 @@ class StudyLabelGenerator:
            if response and self.sanitize_openai_response(response):
             return response  # Return the valid response
 
+           print(f"Error with paper: {title}")
            print("Response is invalid. Trying again...")
 
            # Increase the temperature for subsequent tries to introduce creativity
            temperature = min(temperature + 0.2, 1.0)  # Increase temperature, maxing out at 1.0
+           if attempt == 1:
+               messages.append({"role": "user", "content": "You made a mistake, think again about it."})
 
        print("Max attempts reached. No valid response found.")
        return None
@@ -110,7 +113,7 @@ class StudyLabelGenerator:
         ]
         
         # Call the OpenAI API using the chat completions endpoint
-        content = self.get_valid_response(messages)
+        content = self.get_valid_response(title, messages)
         
         # Extract and clean the response
         labels = json.loads(content)
