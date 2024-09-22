@@ -1,11 +1,35 @@
 import pandas as pd
 from dotenv import load_dotenv
 from StudyLabelGenerator import StudyLabelGenerator
+import textwrap
 
 # Load environment variables from the .env file
 load_dotenv()
 
-# Example usage:
+def get_report(df, show_abstract=False, export=False):
+    report = ""
+    for index, row in df.iterrows():
+        if show_abstract:
+            title = "# " + row.Title
+            abstract = "\n\n" + textwrap.fill(row.Abstract, width=60)
+        else:
+            title = f"**{row.Title}**"
+            abstract = ""
+        labels = (f"`Study on: {row.Study_On} | Study type: {row.Study_Type} |"
+                  f"Inclusion_Criteria: {row.Inclusion_Criteria} | "
+                  f"Exclusion_Criteria: {row.Exclusion_Criteria}`")
+        
+        report += f"{title}  \n{labels}{abstract}"
+        report += "\n\n----------------------------\n\n"
+    
+    if export:
+        file_name = "report.md"
+        with open(file_name, "w") as file:
+            file.write(report)
+        print(f"Report written to {file_name}.")
+    else:
+        print(report)
+
 if __name__ == "__main__":
     # Initialize the class (API key will be automatically loaded from .env if not provided)
     generator = StudyLabelGenerator()
@@ -43,3 +67,7 @@ if __name__ == "__main__":
 
     # Generate the labels
     print(df)
+    df.to_csv("output.csv")
+
+#df = pd.read_csv("output.csv")
+#get_report(df[:5], show_abstract=False, export=True)
