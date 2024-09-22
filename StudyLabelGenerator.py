@@ -68,25 +68,36 @@ class StudyLabelGenerator:
        Returns:
            str: The valid response if found within the maximum attempts, else None.
        """
-       temperature = initial_temperature
+       
+       response = self.get_openai_response(messages)
+       
+       if not self.sanitize_openai_response(response):
+            temperature = initial_temperature
+            for attempt in range(1, max_tries + 1):
+                # Create a new message
+                new_messages = [
+                    {"role": "system", "content": "You are an expert in classifying scientific studies."},
+                    {"role": "user", "content": (f"I previously asked the question:\n{messages[1]['content']}"
+                                                 "\n\nYou gave me this wrong answer:\n{response}"
+                                                 "\n\nPlease correct your mistake.")
+                    }
+                    ]
+                # Create the response with the current temperature and correction request
+                response = self.get_openai_response(new_messages, temperature)
 
-       for attempt in range(1, max_tries + 1):
-           # Create the response with the current temperature
-           response = self.get_openai_response(messages, temperature)
+                if response and self.sanitize_openai_response(response):
+                    return response  # Return the valid response
 
-           if response and self.sanitize_openai_response(response):
-            return response  # Return the valid response
+                print(f"Error with paper: {title}")
+                print("Response is invalid. Trying again...")
 
-           print(f"Error with paper: {title}")
-           print("Response is invalid. Trying again...")
+                # Increase the temperature for subsequent tries to introduce creativity
+                temperature = min(temperature + 0.2, 1.0)  # Increase temperature, maxing out at 1.0
 
-           # Increase the temperature for subsequent tries to introduce creativity
-           temperature = min(temperature + 0.2, 1.0)  # Increase temperature, maxing out at 1.0
-           if attempt == 1:
-               messages.append({"role": "user", "content": "You made a mistake, think again about it."})
-
-       print("Max attempts reached. No valid response found.")
-       return None
+            print("Max attempts reached. No valid response found.")
+            return None
+       else:
+           return response
 
 
     def generate_labels(self, title, abstract, keywords):
@@ -105,8 +116,8 @@ class StudyLabelGenerator:
                                          f'provide keys and values of a json file. The variables should be: '
                                          f'\n - In which system was the study done, choose one of {study_on}'
                                          f'\n - What type of study is it, choose one of {study_type}.'
-                                         f'\n - Does it meet the inclusion criteria (True or False): {inclusion_criteria}'
-                                         f'\n - Does it meet the exclusion criteria (True or False): {exclusion_criteria}'
+                                         f'\n - Does it meet the following inclusion criteria (True or False)? {inclusion_criteria}'
+                                         f'\n - Does it meet the following exclusion criteria (True or False)? {exclusion_criteria}'
                                          '\n\n Respond only with a json structure, no other comments or text.'
                                          '\nExample output: {"study_on": "humans","study_type": "observational study", "inclusion_criteria": "True", "exclusion_criteria": "False"}')
             }
