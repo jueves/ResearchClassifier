@@ -116,8 +116,8 @@ class StudyLabelGenerator:
                                          f'provide keys and values of a json file. The variables should be: '
                                          f'\n - In which system was the study done, choose one of {study_on}'
                                          f'\n - What type of study is it, choose one of {study_type}.'
-                                         f'\n - Does it meet the following inclusion criteria (True or False)? {inclusion_criteria}'
-                                         f'\n - Does it meet the following exclusion criteria (True or False)? {exclusion_criteria}'
+                                         f'\n - Does it meet ALL the following inclusion criteria (True or False)? {inclusion_criteria}'
+                                         f'\n - Does it meet ANY of the following exclusion criteria (True or False)? {exclusion_criteria}'
                                          '\n\n Respond only with a json structure, no other comments or text.'
                                          '\nExample output: {"study_on": "humans","study_type": "observational study", "inclusion_criteria": "True", "exclusion_criteria": "False"}')
             }
