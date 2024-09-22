@@ -12,8 +12,8 @@ if __name__ == "__main__":
     
     # Read the CSV file
     df = pd.read_csv('first30.csv')
-    df = df[2:4]
-    print(f'Usando solo {len(df)} filas.')
+    print(f'Iniciando el etiquetado de {len(df)} artículos...')
+    
     # Preallocate lists to store results
     study_on = []
     study_types = []
