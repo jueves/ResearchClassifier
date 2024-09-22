@@ -15,6 +15,77 @@ class StudyLabelGenerator:
         with open(json_file) as f:
             self.labels_definition = json.load(f)
 
+    def sanitize_openai_response(self, response):
+        """
+        Sanitize the response from openai.chat.completions.create().
+
+        Args:
+            response (str): The raw response from OpenAI API as a string.
+
+        Returns:
+            bool: True if the response is a valid dictionary and matches the structure, else False.
+        """
+        try:
+            # Attempt to parse the response as a dictionary
+            response_dict = json.loads(response)
+
+            # Check if it has the correct structure
+            expected_keys = {"study_on", "study_type", "inclusion_criteria", "exclusion_criteria"}
+
+            # Verify that all required keys are present and their types are correct
+            if (expected_keys.issubset(response_dict.keys()) and
+                isinstance(response_dict["study_on"], str) and
+                isinstance(response_dict["study_type"], str) and
+                response_dict["inclusion_criteria"] in ["True", "False"] and
+                response_dict["exclusion_criteria"] in ["True", "False"]):
+                return True
+            else:
+                return False
+
+        except json.JSONDecodeError:
+            return False
+
+    def get_openai_response(self, messages, temp=0):
+        response = openai.chat.completions.create(
+            model="gpt-4o-mini-2024-07-18",
+            messages=messages,
+            max_tokens=100,  # Short response expected
+            temperature=temp  # Set temperature for consistent output
+            )
+        content = response.choices[0].message.content
+        return(content)
+
+    def get_valid_response(self, messages, max_tries=5, initial_temperature=0):
+       """
+       Try to get a valid response from OpenAI up to max_tries times,
+       increasing the temperature after the first attempt.
+
+       Args:
+           messages (list): The chat messages to send to OpenAI API.
+           max_tries (int): The maximum number of retry attempts.
+           initial_temperature (float): The initial temperature for the first try.
+
+       Returns:
+           str: The valid response if found within the maximum attempts, else None.
+       """
+       temperature = initial_temperature
+
+       for attempt in range(1, max_tries + 1):
+           # Create the response with the current temperature
+           response = self.get_openai_response(messages, temperature)
+
+           if response and self.sanitize_openai_response(response):
+            return response  # Return the valid response
+
+           print("Response is invalid. Trying again...")
+
+           # Increase the temperature for subsequent tries to introduce creativity
+           temperature = min(temperature + 0.2, 1.0)  # Increase temperature, maxing out at 1.0
+
+       print("Max attempts reached. No valid response found.")
+       return None
+
+
     def generate_labels(self, title, abstract, keywords):
         """ Generate labels for a scientific study based on the given inputs. """
         # Extract different parts from the JSON
@@ -39,15 +110,9 @@ class StudyLabelGenerator:
         ]
         
         # Call the OpenAI API using the chat completions endpoint
-        response = openai.chat.completions.create(
-            model="gpt-4o-mini-2024-07-18",
-            messages=messages,
-            max_tokens=100,  # Short response expected
-            temperature=0  # Set temperature for consistent output
-        )
+        content = self.get_valid_response(messages)
         
         # Extract and clean the response
-        content = response.choices[0].message.content
         labels = json.loads(content)
         boolean_keys = ['inclusion_criteria', 'exclusion_criteria']
 
