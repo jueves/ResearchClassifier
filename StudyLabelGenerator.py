@@ -28,12 +28,13 @@ class StudyLabelGenerator:
             {"role": "system", "content": "You are an expert in classifying scientific studies."},
             {"role": "user", "content": (f'Given the following scientific paper with the title: "{title}", '
                                          f'abstract: "{abstract}", and keywords: "{keywords}", '
-                                         f'provide a list of labels separated by commas. The labels should be: '
+                                         f'provide keys and values of a json file. The variables should be: '
                                          f'\n - In which system was the study done, choose one of {study_on}'
                                          f'\n - What type of study is it, choose one of {study_type}.'
                                          f'\n - Does it meet the inclusion criteria (True or False): {inclusion_criteria}'
                                          f'\n - Does it meet the exclusion criteria (True or False): {exclusion_criteria}'
-                                         f'\n\n Example output: humans, clinical trial, True, False')
+                                         '\n\n Respond only with a json structure, no other comments or text.'
+                                         '\nExample output: {"study_on": "humans","study_type": "observational study", "inclusion_criteria": "True", "exclusion_criteria": "False"}')
             }
         ]
         
@@ -47,8 +48,16 @@ class StudyLabelGenerator:
         
         # Extract and clean the response
         content = response.choices[0].message.content
-        content_list = [item.strip() for item in content.split(',')]
-        labels = [False if item.lower() == 'false' else True if item.lower() == 'true' else item for item in content_list]
-                       
-        return labels
+        labels = json.loads(content)
+        boolean_keys = ['inclusion_criteria', 'exclusion_criteria']
 
+        # Convert specific keys with boolean-like strings to actual booleans or set to None for invalid labels
+        for key in boolean_keys:
+            if key in labels:
+                if labels[key].lower() == "true":
+                    labels[key] = True
+                elif labels[key].lower() == "false":
+                    labels[key] = False
+                else:
+                    labels[key] = None                       
+        return labels
