@@ -1,6 +1,6 @@
 {
     "study_on": "humans, animals, in-vitro, other",
-    "study_type": "clinical trial, observational study, systematic review, meta-analys, other",
+    "study_type": "clinical trial, observational study, systematic review, meta-analysis, other",
     "inclusion_criteria": ["Studies assessing the impact of digital technologies on medication adherence.",
                            "Human subjects: Adult or pediatric patients with chronic conditions requiring medication adherence (excluding animal studies).",
                            "Clinical trials and observational studies."],
