@@ -1,7 +1,13 @@
+import textwrap
 import pandas as pd
 from dotenv import load_dotenv
 from StudyLabelGenerator import StudyLabelGenerator
-import textwrap
+
+
+DATA_FILENAME="all_papers.csv"
+METADATA_FILENAME="labels_definition2.json"
+SAMPLE=None
+MIN_YEAR=2022
 
 # Load environment variables from the .env file
 load_dotenv()
@@ -31,29 +37,37 @@ def get_report(df, show_abstract=False, export=False):
         print(report)
 
 def count_df(df):
-    on_humans = df[df.Study_On == "humans"]
-    print(f"On humans: {len(on_humans)}")
+    df = df[df.Year > 2010]
+    print(f"After 2010: {len(df)}")
 
-    with_valid_study_type = on_humans[on_humans.Study_Type != "other"]
-    print(f"With valid study type: {len(with_valid_study_type)}")
+    df = df[df.Study_Type != "other"]
+    print(f"With valid study type: {len(df)}")
+
+    df = df[df.Study_On == "humans"]
+    print(f"On humans: {len(df)}")
 
     # Exclude 'systematic review' and 'meta-analysis' with ~
-    without_metanalisis = with_valid_study_type[~with_valid_study_type.Study_Type.isin(["systematic review", "meta-analysis"])]
-    print(f'Without meta-analysis: {len(without_metanalisis)}')
+    df = df[~df.Study_Type.isin(["systematic review", "meta-analysis"])]
+    print(f'Without meta-analysis: {len(df)}')
 
-    valid_inclusion_exclusion = with_valid_study_type[
-                                                      (without_metanalisis.Inclusion_Criteria == True) & 
-                                                      (without_metanalisis.Exclusion_Criteria == False)
-                                                     ]
+    df = df[(df.Inclusion_Criteria == True) & (df.Exclusion_Criteria == False)]
+    print(f"With valid inclusion and exclusion criteria: {len(df)}")
 
-    print(f"With valid inclusion and exclusion criteria: {len(valid_inclusion_exclusion)}")
+    #df = df[df.Year > MIN_YEAR]
+    #print(f"After {MIN_YEAR}: {len(df)}")
 
+    df = df[df["Publication Type"].isin(['Trial registry record', 'Journal article'])]
+    print(f"Only Trial registry record and Journal article: {len(df)}")
+    return df
+    
 if __name__ == "__main__":
     # Initialize the class (API key will be automatically loaded from .env if not provided)
-    generator = StudyLabelGenerator()
+    generator = StudyLabelGenerator(json_file=METADATA_FILENAME)
     
     # Read the CSV file
-    df = pd.read_csv('first30.csv')
+    df = pd.read_csv(DATA_FILENAME)
+    if SAMPLE:
+        df = df.sample(SAMPLE)
     print(f'Iniciando el etiquetado de {len(df)} artículos...')
     
     # Preallocate lists to store results
@@ -87,6 +101,7 @@ if __name__ == "__main__":
     print(df)
     df.to_csv("output.csv")
 
-df = pd.read_csv("output.csv")
+df = pd.read_csv("output2.csv")
 #get_report(df, show_abstract=False, export=True)
-count_df(df)
+selection_df = count_df(df)
+selection_df.to_csv("selection.csv")
