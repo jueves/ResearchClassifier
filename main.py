@@ -37,7 +37,7 @@ def generate_labels(title, abstract, keywords):
     
     # Call the OpenAI API using the chat completions endpoint
     response = openai.chat.completions.create(
-        model="gpt-4",  # Or "gpt-3.5-turbo"
+        model="gpt-4o-mini-2024-07-18",
         messages=messages,
         max_tokens=10,  # Short response expected
         temperature=0  # Set temperature for consistent output
