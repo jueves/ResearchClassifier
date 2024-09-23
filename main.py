@@ -13,6 +13,13 @@ CREATE_LABELS=False
 # Load environment variables from the .env file
 load_dotenv()
 
+# Load prompts
+prompts_dic = {}
+with open("system_prompt.txt", "r") as file:
+    prompts_dic["system_prompt"] = file.read()
+with open("user_prompt_template.txt", "r") as file:
+    prompts_dic["user_prompt_template"] = file.read()
+
 def get_report(df, show_abstract=False, export=False):
     report = ""
     for index, row in df.iterrows():
@@ -63,7 +70,8 @@ def count_df(df):
 
 if __name__ == "__main__" and CREATE_LABELS:
     # Initialize the class (API key will be automatically loaded from .env if not provided)
-    generator = StudyLabelGenerator(json_file=METADATA_FILENAME)
+    generator = StudyLabelGenerator(prompts_dict=prompts_dic,
+                                    labels_filename=METADATA_FILENAME)
     
     # Read the CSV file
     df = pd.read_csv(DATA_FILENAME)

@@ -3,7 +3,7 @@ import os
 import json
 
 class StudyLabelGenerator:
-    def __init__(self, api_key=None, json_file='labels_definition.json'):
+    def __init__(self, prompts_dict, api_key=None, labels_filename='labels_definition.json'):
         # Load environment variables if API key is not provided
         if api_key is None:
             self.api_key = os.getenv("OPENAI_API_KEY")
@@ -12,8 +12,9 @@ class StudyLabelGenerator:
         openai.api_key = self.api_key
 
         # Load the JSON file with labels prompts
-        with open(json_file) as f:
+        with open(labels_filename) as f:
             self.labels_definition = json.load(f)
+        self.prompts_dic = prompts_dict
 
     def sanitize_openai_response(self, response):
         """
@@ -76,7 +77,7 @@ class StudyLabelGenerator:
             for attempt in range(1, max_tries + 1):
                 # Create a new message
                 new_messages = [
-                    {"role": "system", "content": "You are an expert in classifying scientific studies."},
+                    {"role": "system", "content": self.prompts_dic["system_prompt"]},
                     {"role": "user", "content": (f"I previously asked the question:\n{messages[1]['content']}"
                                                  "\n\nYou gave me this wrong answer:\n{response}"
                                                  "\n\nPlease correct your mistake.")
@@ -108,28 +109,21 @@ class StudyLabelGenerator:
         inclusion_criteria = "\n".join(self.labels_definition['inclusion_criteria'])
         exclusion_criteria = "\n".join(self.labels_definition['exclusion_criteria'])
         
+        # Generate user_prompt
+        user_prompt = self.prompts_dic["user_prompt_template"].format(
+                                                      title=title,
+                                                      keywords=keywords,
+                                                      abstract=abstract,
+                                                      study_on=study_on,
+                                                      study_type=study_type,
+                                                      inclusion_criteria=inclusion_criteria,
+                                                      exclusion_criteria=exclusion_criteria
+                                                      )
         # Construct the messages for the chat-based model
         messages = [
-            {"role": "system", "content": "You are an expert in classifying scientific studies."},
-            {"role": "user", "content": (f'I will provide you with a scientific paper. Please analyze it and answer the following four questions.'
-                                         '\n\n# Paper Details'
-                                         f'\n## Title: {title}'
-                                         f'\n## Keywords: {keywords}'
-                                         f'\n## Abstract: \n{abstract}'
-                                         '\n\n# Questions:'
-                                         '\nFirst, summarize the abstract in no more than 3 sentences, focusing on the study population, methodology, '
-                                         'and primary outcome. Then answer the following questions based on that summary.'
-                                         f'\n1. In which system was the study conducted? Choose one from: {study_on}.'
-                                         f'\n2. What type of study is it? Choose one from: {study_type}.'
-                                         f'\n3. Does the paper meet ALL of the inclusion criteria lsited below? If it meets ALL, respond with "True", otherwise "False". {inclusion_criteria}'
-                                         f'\n4. Does the paper meet ANY of the exclusion criteria listed below? If it meets ANY, respond with "True", otherwise "False". {exclusion_criteria}'
-                                         '\n\n## Important Note: Focus primarily on the title and keywords.'
-                                         '\nPlease pay special attention to the abstract and keywords to determine if the paper matches any of the exclusion criteria.'
-                                         '\n\nRespond only in the following JSON format, with no additional comments or text:'
-                                         '\n{"study_on": "humans", "study_type": "observational study", "inclusion_criteria": "True", "exclusion_criteria": "False"}')
-            }
+            {"role": "system", "content": self.prompts_dic["system_prompt"]},
+            {"role": "user", "content": user_prompt}
             ]
-
 
         # Call the OpenAI API using the chat completions endpoint
         content = self.get_valid_response(title, messages)
