@@ -111,15 +111,20 @@ class StudyLabelGenerator:
         # Construct the messages for the chat-based model
         messages = [
             {"role": "system", "content": "You are an expert in classifying scientific studies."},
-            {"role": "user", "content": (f'Given the following scientific paper with the title: "{title}", '
-                                         f'abstract: "{abstract}", and keywords: "{keywords}", '
-                                         f'provide keys and values of a json file. The variables should be: '
-                                         f'\n - In which system was the study done, choose one of {study_on}'
-                                         f'\n - What type of study is it, choose one of {study_type}.'
+            {"role": "user", "content": (f'I am going to give you a scientific paper and I want you to analyze it and'
+                                         ' answer me the following 4 questions about it.\n'
+                                         '# Questions\n'
+                                         f'\n - In which system was the study done? Choose one of {study_on}'
+                                         f'\n - What type of study is it? Choose one of {study_type}.'
                                          f'\n - Does it meet ALL the following inclusion criteria (True or False)? {inclusion_criteria}'
                                          f'\n - Does it meet ANY of the following exclusion criteria (True or False)? {exclusion_criteria}'
                                          '\n\n Respond only with a json structure, no other comments or text.'
-                                         '\nExample output: {"study_on": "humans","study_type": "observational study", "inclusion_criteria": "True", "exclusion_criteria": "False"}')
+                                         '\nExample output: {"study_on": "humans","study_type": "observational study",'
+                                          ' "inclusion_criteria": "True", "exclusion_criteria": "False"}'
+                                         '\n\n# Paper\n'
+                                         f'## {title}\n'
+                                         f'Keywords: {keywords}'
+                                         f'### Abstract\n{abstract}')                                                                          
             }
         ]
         
