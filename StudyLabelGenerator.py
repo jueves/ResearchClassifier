@@ -50,7 +50,7 @@ class StudyLabelGenerator:
         response = openai.chat.completions.create(
             model="gpt-4o-mini-2024-07-18",
             messages=messages,
-            max_tokens=100,  # Short response expected
+            max_tokens=500,
             temperature=temp  # Set temperature for consistent output
             )
         content = response.choices[0].message.content
