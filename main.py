@@ -61,7 +61,7 @@ def count_df(df):
     print(f"Only Trial registry record and Journal article: {len(df)}")
     return df
 
-if __name__ == "__main__":
+if __name__ == "__main__" and CREATE_LABELS:
     # Initialize the class (API key will be automatically loaded from .env if not provided)
     generator = StudyLabelGenerator(json_file=METADATA_FILENAME)
     
