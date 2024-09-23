@@ -1,4 +1,9 @@
 .env
 output*.csv
-report.md
 all_papers.csv
+selection.csv
+*.old
+report.md
+Pruebas.md
+Notas.md
+
