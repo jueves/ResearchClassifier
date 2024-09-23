@@ -111,23 +111,26 @@ class StudyLabelGenerator:
         # Construct the messages for the chat-based model
         messages = [
             {"role": "system", "content": "You are an expert in classifying scientific studies."},
-            {"role": "user", "content": (f'I am going to give you a scientific paper and I want you to analyze it and'
-                                         ' answer me the following 4 questions about it.\n'
-                                         '# Questions\n'
-                                         f'\n - In which system was the study done? Choose one of {study_on}'
-                                         f'\n - What type of study is it? Choose one of {study_type}.'
-                                         f'\n - Does it meet ALL the following inclusion criteria (True or False)? {inclusion_criteria}'
-                                         f'\n - Does it meet ANY of the following exclusion criteria (True or False)? {exclusion_criteria}'
-                                         '\n\n Respond only with a json structure, no other comments or text.'
-                                         '\nExample output: {"study_on": "humans","study_type": "observational study",'
-                                          ' "inclusion_criteria": "True", "exclusion_criteria": "False"}'
-                                         '\n\n# Paper\n'
-                                         f'## {title}\n'
-                                         f'Keywords: {keywords}'
-                                         f'### Abstract\n{abstract}')                                                                          
+            {"role": "user", "content": (f'I will provide you with a scientific paper. Please analyze it and answer the following four questions.'
+                                         '\n\n# Paper Details'
+                                         f'\n## Title: {title}'
+                                         f'\n## Keywords: {keywords}'
+                                         f'\n## Abstract: \n{abstract}'
+                                         '\n\n# Questions:'
+                                         '\nFirst, summarize the abstract in no more than 3 sentences, focusing on the study population, methodology, '
+                                         'and primary outcome. Then answer the following questions based on that summary.'
+                                         f'\n1. In which system was the study conducted? Choose one from: {study_on}.'
+                                         f'\n2. What type of study is it? Choose one from: {study_type}.'
+                                         f'\n3. Does the paper meet ALL of the inclusion criteria lsited below? If it meets ALL, respond with "True", otherwise "False". {inclusion_criteria}'
+                                         f'\n4. Does the paper meet ANY of the exclusion criteria listed below? If it meets ANY, respond with "True", otherwise "False". {exclusion_criteria}'
+                                         '\n\n## Important Note: Focus primarily on the title and keywords.'
+                                         '\nPlease pay special attention to the abstract and keywords to determine if the paper matches any of the exclusion criteria.'
+                                         '\n\nRespond only in the following JSON format, with no additional comments or text:'
+                                         '\n{"study_on": "humans", "study_type": "observational study", "inclusion_criteria": "True", "exclusion_criteria": "False"}')
             }
-        ]
-        
+            ]
+
+
         # Call the OpenAI API using the chat completions endpoint
         content = self.get_valid_response(title, messages)
         
