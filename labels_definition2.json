@@ -1,0 +1,9 @@
+{
+    "study_on": "humans, animals, in-vitro, other",
+    "study_type": "clinical trial, observational study, systematic review, meta-analysis, other",
+    "inclusion_criteria": ["1. Studies assessing the impact of modern digital technologies on diabetes medication adherence.",
+                           "2. The study is specifically focused on diabetic patients."],
+    "exclusion_criteria": ["1. Studies on adherence to treatments unrelated to medication.",
+                           "2. Studies without digital intervention.",
+                           "3. Studies that include conditions other than diabetes."]
+}
