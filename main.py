@@ -1,3 +1,4 @@
+import textwrap
 import pandas as pd
 from dotenv import load_dotenv
 from StudyLabelGenerator import StudyLabelGenerator
@@ -89,4 +90,5 @@ if __name__ == "__main__":
 
 df = pd.read_csv("output.csv")
 #get_report(df, show_abstract=False, export=True)
-count_df(df)
+
+
