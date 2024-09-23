@@ -2,7 +2,13 @@ import textwrap
 import pandas as pd
 from dotenv import load_dotenv
 from StudyLabelGenerator import StudyLabelGenerator
-import textwrap
+
+
+DATA_FILENAME="all_papers.csv"
+METADATA_FILENAME="labels_definition.json"
+SAMPLE=None
+MIN_YEAR=2022
+CREATE_LABELS=False
 
 # Load environment variables from the .env file
 load_dotenv()
@@ -51,10 +57,12 @@ def count_df(df):
 
 if __name__ == "__main__":
     # Initialize the class (API key will be automatically loaded from .env if not provided)
-    generator = StudyLabelGenerator()
+    generator = StudyLabelGenerator(json_file=METADATA_FILENAME)
     
     # Read the CSV file
-    df = pd.read_csv('first30.csv')
+    df = pd.read_csv(DATA_FILENAME)
+    if SAMPLE:
+        df = df.sample(SAMPLE)
     print(f'Iniciando el etiquetado de {len(df)} artículos...')
     
     # Preallocate lists to store results
