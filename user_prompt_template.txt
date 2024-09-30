@@ -6,7 +6,7 @@ I will provide you with a scientific paper. Please analyze it and answer the fol
 {abstract}
 
 # Questions:
-First, summarize the abstract in no more than 3 sentences, focusing on the study population, methodology, and primary outcome. Then answer the following questions based on that summary.
+First, summarize the abstract in no more than 3 sentences, focusing on the study population, primary outcome and digital technologies used. Then answer the following questions based on that summary.
 1. In which system was the study conducted? Choose one from: {study_on}.
 2. What type of study is it? Choose one from: {study_type}.
 3. Does the paper meet ALL of the inclusion criteria listed below? If it meets ALL, respond with "True", otherwise "False". {inclusion_criteria}
