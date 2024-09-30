@@ -4,11 +4,11 @@ from dotenv import load_dotenv
 from StudyLabelGenerator import StudyLabelGenerator
 
 
-DATA_FILENAME="all_papers.csv"
-METADATA_FILENAME="labels_definition.json"
-SAMPLE=None
-MIN_YEAR=2022
-CREATE_LABELS=False
+DATA_FILENAME="first30.csv"
+METADATA_FILENAME="labels_definition2.json"
+SAMPLE=10 # Number of papers from DATA_FILENAME to be processed. Set to "None" to take all.
+MIN_YEAR=2020
+CREATE_LABELS=True # If False, it won't create a new output.csv and will work on prelabeled data.
 
 # Load environment variables from the .env file
 load_dotenv()
@@ -112,6 +112,8 @@ if __name__ == "__main__" and CREATE_LABELS:
     df.to_csv("output.csv")
 
 df = pd.read_csv("output.csv")
-#get_report(df, show_abstract=False, export=True)
 
+selected = count_df(df)
+selected.to_csv("output.csv")
 
+get_report(selected, show_abstract=False, export=True)
