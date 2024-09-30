@@ -45,6 +45,9 @@ def get_report(df, show_abstract=False, export=False):
         print(report)
 
 def count_df(df):
+    df = df[df["Publication Type"].isin(['Trial registry record', 'Journal article'])]
+    print(f"Only Trial registry record and Journal article: {len(df)}")
+
     df = df[df.Year > 2010]
     print(f"After 2010: {len(df)}")
 
@@ -61,11 +64,9 @@ def count_df(df):
     df = df[(df.Inclusion_Criteria == True) & (df.Exclusion_Criteria == False)]
     print(f"With valid inclusion and exclusion criteria: {len(df)}")
 
-    #df = df[df.Year > MIN_YEAR]
-    #print(f"After {MIN_YEAR}: {len(df)}")
+    df = df[df.Year > MIN_YEAR]
+    print(f"After {MIN_YEAR}: {len(df)}")
 
-    df = df[df["Publication Type"].isin(['Trial registry record', 'Journal article'])]
-    print(f"Only Trial registry record and Journal article: {len(df)}")
     return df
 
 if __name__ == "__main__" and CREATE_LABELS:
